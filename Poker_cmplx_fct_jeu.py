@@ -146,9 +146,20 @@ def cree_jeu_truque(carte_de_en : list) -> tuple :
     
 ##on commence l'algo :
 #fonction appliquant le CFR+ : 
-def prendre_strategie (nombreRegrets) :
+def prendre_strategie_new (nombreRegrets) :
+    #on prends le max en valeur absolu
+    is_negatif = False
+    max_abs = nombreRegrets[0]
+    for i in nombreRegrets :
+        if abs(i) > max_abs :
+            max_abs = abs(i)
+        if i < 0 :
+            is_negatif = True
     #on supprime les valeur de regret négatives (car CFR+)
-    strategie = np.clip(nombreRegrets, a_min = 0, a_max = None)
+    strategie = np.copy(nombreRegrets)
+    if is_negatif :
+        for i in range(len(strategie)) :
+            strategie[i] += max_abs
     #on somme les differents regrets
     sommeRegret = sum(strategie)
     if sommeRegret != 0 :
@@ -157,7 +168,7 @@ def prendre_strategie (nombreRegrets) :
         strategie = np.repeat(1/nombreActions, nombreActions)
     return strategie
 
-def prendre_strategie_ancien (nombreRegrets) :
+def prendre_strategie (nombreRegrets) :
     #on supprime les valeur de regret négatives (car CFR+)
     strategie = np.clip(nombreRegrets, a_min = 0, a_max = None)
     #on somme les differents regrets

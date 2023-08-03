@@ -2,9 +2,10 @@ from poker_variables import *
 from Poker_cmplx_fct_jeu import *
 from Poker_fonction_entrainement import *
 from Poker_test_algo import *
-
+import matplotlib.pyplot as plt
 #mise en place de l'algo
 def entrainer(i) :
+    W, L = 0, 0
     for k in range(i) :
         #attribution des jetons
         jeton_P1 = regle["jeton_base"]
@@ -12,6 +13,7 @@ def entrainer(i) :
         if k % 100000 == 0 :
             print(k)
         j = 0
+        
         while jeton_P1 > 0 and jeton_P2 > 0 :
             #mise en place du jeu
             jeu = cree_jeu()
@@ -66,13 +68,11 @@ def entrainer(i) :
                 #on ne regarde que les regrets possible (pas au dessus de nos moyens)
                 if a <= jeton_P1 and a != mon_action_T1 and a >= 1 - j%2:
                     #on joue la partie
-                    
-                    regret_act1_P1, regret_act1_P2, is_fold_P1_rgtT1, is_fold_P2_rgtT1, partie_continue_rgtT1 = jouer_partie_T1(j,P1, a,nombreStrategies_T1, P2, en_action_T1,en_nombreStrategies_T1,jeton_P1, jeton_P2)
+                    regret_act1_P1, regret_act1_P2, is_fold_P1_rgtT1, is_fold_P2_rgtT1, partie_continue_rgtT1 = jouer_partie_T1(j, P1, a,nombreStrategies_T1, P2, en_action_T1,en_nombreStrategies_T1, jeton_P1, jeton_P2)
                     
                     jeton_rgt_P1 = jeton_P1 - regret_act1_P1
                     jeton_rgt_P2 = jeton_P2 - regret_act1_P2
                     if partie_continue_rgtT1 == True :
-                        
                         regret_act2_P1, regret_act2_P2 = prendre_decision_jeu_T2(P1,ma_combi,nombreStrategies_T2, nombre_regret_T2, P2,en_combi,en_nombreStrategies_T2, en_nombre_regret_T2, jeton_rgt_P1, jeton_rgt_P2)
                         mon_regret_T1 = jouer_partie_T2(P1, ma_combi,regret_act2_P1, regret_act1_P1, nombreStrategies_T2, P2,en_combi, regret_act2_P2, regret_act1_P2, en_nombreStrategies_T2, flop, jeton_rgt_P1, jeton_rgt_P2)[0] - recomp_P1
                         
@@ -84,14 +84,12 @@ def entrainer(i) :
                         else :
                             
                             mon_regret_T1 = regret_act1_P2 - ma_recomp
-                    
-                    
-                    le_reg_1[a].append(mon_regret_T1)
+
                     nombre_regret_T1[PP1][a] += mon_regret_T1
                 #on passe au regret de l'alter ego de notre algo
-                if a <= jeton_P2 and a != en_action_T1 and a >= j%2:
-                    
-                    regret_act1_P2, regret_act1_P1, is_fold_P2_rgtT1, is_fold_P1_rgtT1, partie_continue_rgtT1 = jouer_partie_T1(j,P2, a, en_nombreStrategies_T1, P1, mon_action_T1, nombreStrategies_T1, jeton_P2, jeton_P1)
+                if a <= jeton_P2 and a != en_action_T1 and a >= j%2 :
+                   
+                    regret_act1_P1, regret_act1_P2, is_fold_P1_rgtT1, is_fold_P2_rgtT1, partie_continue_rgtT1 = jouer_partie_T1(j,P1, mon_action_T1, nombreStrategies_T1,P2, a, en_nombreStrategies_T1,  jeton_P2, jeton_P1)
                     jeton_rgt_P1 = jeton_P1 - regret_act1_P1
                     jeton_rgt_P2 = jeton_P2 - regret_act1_P2
                     if partie_continue_rgtT1 == True :
@@ -104,29 +102,30 @@ def entrainer(i) :
                             en_regret_T1 = -regret_act1_P2 - en_recomp
                     if a != en_action_T1 :
                         en_nombre_regret_T1[PP2][a] += en_regret_T1
-                    
                 #regret du TOUR2
                 
                 if is_fold_P1 == False and is_fold_P2 == False :
                     if a <= jeton_P1 - mon_action_T1 and a != mon_action_T2:
-                        
+                        #print("je regarde si j'avais joué au T2 : " + str(a))
                         regret_T2_P1 = jouer_partie_T2(P1, ma_combi,a, mon_action_T1, nombreStrategies_T2, P2,en_combi, en_action_T2, en_action_T1, en_nombreStrategies_T2, flop, jeton_P1 - mon_action_T1, jeton_P2 - en_action_T1)[0] - ma_recomp
                         
-                        le_reg_2[a].append(regret_T2_P1)
-                        
+                        #le_reg_2[a].append(regret_T2_P1)
+                        #print("mon regret est de : " + str(regret_T2_P1))
                         nombre_regret_T2[(PP1, ma_combi[0])][a] += regret_T2_P1
-                        
                     if a <= jeton_P2 - en_action_T1 and a != en_action_T2:
-                        
                         regret_T2_P2 = jouer_partie_T2(P2,en_combi,a  , en_action_T1, en_nombreStrategies_T2, P1, ma_combi, mon_action_T2, mon_action_T1, nombreStrategies_T2,flop, jeton_P2 - en_action_T1, jeton_P1 - mon_action_T1)[1] - en_recomp
                         en_nombre_regret_T2[(PP2, en_combi[0])][a] += regret_T2_P2
-                        
             #on distribue le résultat
             jeton_P1 += recomp_P1
             jeton_P2 += recomp_P2
-            print(nombre_regret_T2[(PP1,ma_combi[0])])
             j+= 1
+        if jeton_P1 <= 0 :
+            L +=1
+        if jeton_P2 <= 0 :
+            W += 1
+    print(W, L)
 def entrainer_print(i) :
+    W, L = 0, 0
     for k in range(i) :
         #attribution des jetons
         jeton_P1 = regle["jeton_base"]
@@ -136,7 +135,7 @@ def entrainer_print(i) :
         j = 0
         while jeton_P1 > 0 and jeton_P2 > 0 :
             #mise en place du jeu
-            jeu = cree_jeu_truque(['D3', 'J1'])
+            jeu = cree_jeu()
             P1 = jeu[0]
             PP1= conv_carte_str(P1)
             print("mes cartes : " + PP1)
@@ -189,14 +188,14 @@ def entrainer_print(i) :
                 #on ne regarde que les regrets possible (pas au dessus de nos moyens)
                 if a <= jeton_P1 and a != mon_action_T1 and a >= 1 - j%2:
                     #on joue la partie
-                    print("je regarde si j'avais joué au T1 : " + str(a) )
-                    regret_act1_P1, regret_act1_P2, is_fold_P1_rgtT1, is_fold_P2_rgtT1, partie_continue_rgtT1 = jouer_partie_T1_print(j, P1, a,nombreStrategies_T1, P2, en_action_T1,en_nombreStrategies_T1, jeton_P1, jeton_P2)
+                    #print("je regarde si j'avais joué au T1 : " + str(a) )
+                    regret_act1_P1, regret_act1_P2, is_fold_P1_rgtT1, is_fold_P2_rgtT1, partie_continue_rgtT1 = jouer_partie_T1(j, P1, a,nombreStrategies_T1, P2, en_action_T1,en_nombreStrategies_T1, jeton_P1, jeton_P2)
                     
                     jeton_rgt_P1 = jeton_P1 - regret_act1_P1
                     jeton_rgt_P2 = jeton_P2 - regret_act1_P2
                     if partie_continue_rgtT1 == True :
-                        regret_act2_P1, regret_act2_P2 = prendre_decision_jeu_T2_print(P1,ma_combi,nombreStrategies_T2, nombre_regret_T2, P2,en_combi,en_nombreStrategies_T2, en_nombre_regret_T2, jeton_rgt_P1, jeton_rgt_P2)
-                        mon_regret_T1 = jouer_partie_T2_print(P1, ma_combi,regret_act2_P1, regret_act1_P1, nombreStrategies_T2, P2,en_combi, regret_act2_P2, regret_act1_P2, en_nombreStrategies_T2, flop, jeton_rgt_P1, jeton_rgt_P2)[0] - recomp_P1
+                        regret_act2_P1, regret_act2_P2 = prendre_decision_jeu_T2(P1,ma_combi,nombreStrategies_T2, nombre_regret_T2, P2,en_combi,en_nombreStrategies_T2, en_nombre_regret_T2, jeton_rgt_P1, jeton_rgt_P2)
+                        mon_regret_T1 = jouer_partie_T2(P1, ma_combi,regret_act2_P1, regret_act1_P1, nombreStrategies_T2, P2,en_combi, regret_act2_P2, regret_act1_P2, en_nombreStrategies_T2, flop, jeton_rgt_P1, jeton_rgt_P2)[0] - recomp_P1
                         
                     else :
                         if is_fold_P1_rgtT1 == True :
@@ -207,18 +206,19 @@ def entrainer_print(i) :
                             
                             mon_regret_T1 = regret_act1_P2 - ma_recomp
                     
-                    print("mon regret est donc de : " + str(mon_regret_T1))
-                    le_reg_1[a].append(mon_regret_T1)
+                    #print("mon regret est donc de : " + str(mon_regret_T1))
+                    #le_reg_1[a].append(mon_regret_T1)
                     nombre_regret_T1[PP1][a] += mon_regret_T1
                 #on passe au regret de l'alter ego de notre algo
                 if a <= jeton_P2 and a != en_action_T1 and a >= j%2 :
                     print("mon adversaire apprends")
-                    regret_act1_P2, regret_act1_P1, is_fold_P2_rgtT1, is_fold_P1_rgtT1, partie_continue_rgtT1 = jouer_partie_T1(j,P2, a, en_nombreStrategies_T1, P1, mon_action_T1, nombreStrategies_T1, jeton_P2, jeton_P1)
+                    print("il regarde si il'avait joué au T1 : " + str(a) )
+                    regret_act1_P1, regret_act1_P2, is_fold_P1_rgtT1, is_fold_P2_rgtT1, partie_continue_rgtT1 = jouer_partie_T1_print(j,P1, mon_action_T1, nombreStrategies_T1,P2, a, en_nombreStrategies_T1,  jeton_P2, jeton_P1)
                     jeton_rgt_P1 = jeton_P1 - regret_act1_P1
                     jeton_rgt_P2 = jeton_P2 - regret_act1_P2
                     if partie_continue_rgtT1 == True :
-                        regret_act2_P1, regret_act2_P2 = prendre_decision_jeu_T2(P1, ma_combi, nombreStrategies_T2, nombre_regret_T2, P2, en_combi,en_nombreStrategies_T2, en_nombre_regret_T2, jeton_rgt_P1, jeton_rgt_P2)
-                        en_regret_T1 = jouer_partie_T2(P1,ma_combi, regret_act2_P1, regret_act1_P1, nombreStrategies_T2, P2,en_combi, regret_act2_P2, regret_act1_P2,en_nombreStrategies_T2, flop, jeton_rgt_P1, jeton_rgt_P2)[1] - recomp_P2
+                        regret_act2_P1, regret_act2_P2 = prendre_decision_jeu_T2_print(P1, ma_combi, nombreStrategies_T2, nombre_regret_T2, P2, en_combi,en_nombreStrategies_T2, en_nombre_regret_T2, jeton_rgt_P1, jeton_rgt_P2)
+                        en_regret_T1 = jouer_partie_T2_print(P1,ma_combi, regret_act2_P1, regret_act1_P1, nombreStrategies_T2, P2,en_combi, regret_act2_P2, regret_act1_P2,en_nombreStrategies_T2, flop, jeton_rgt_P1, jeton_rgt_P2)[1] - recomp_P2
                     else :
                         if is_fold_P1_rgtT1 == True :
                             en_regret_T1 = regret_act1_P1 - en_recomp
@@ -226,21 +226,26 @@ def entrainer_print(i) :
                             en_regret_T1 = -regret_act1_P2 - en_recomp
                     if a != en_action_T1 :
                         en_nombre_regret_T1[PP2][a] += en_regret_T1
+                        le_reg_1[a].append(en_regret_T1)
+                    print("son regret est donc de : " + str(en_regret_T1))
                     print("c'est bon il a fini")
                 #regret du TOUR2
                 
                 if is_fold_P1 == False and is_fold_P2 == False :
                     if a <= jeton_P1 - mon_action_T1 and a != mon_action_T2:
-                        print("je regarde si j'avais joué au T2 : " + str(a))
-                        regret_T2_P1 = jouer_partie_T2_print(P1, ma_combi,a, mon_action_T1, nombreStrategies_T2, P2,en_combi, en_action_T2, en_action_T1, en_nombreStrategies_T2, flop, jeton_P1 - mon_action_T1, jeton_P2 - en_action_T1)[0] - ma_recomp
+                        #print("je regarde si j'avais joué au T2 : " + str(a))
+                        regret_T2_P1 = jouer_partie_T2(P1, ma_combi,a, mon_action_T1, nombreStrategies_T2, P2,en_combi, en_action_T2, en_action_T1, en_nombreStrategies_T2, flop, jeton_P1 - mon_action_T1, jeton_P2 - en_action_T1)[0] - ma_recomp
                         
-                        le_reg_2[a].append(regret_T2_P1)
-                        print("mon regret est de : " + str(regret_T2_P1))
+                        #le_reg_2[a].append(regret_T2_P1)
+                        #print("mon regret est de : " + str(regret_T2_P1))
                         nombre_regret_T2[(PP1, ma_combi[0])][a] += regret_T2_P1
                     if a <= jeton_P2 - en_action_T1 and a != en_action_T2:
                         print("mon adversaire apprends")
-                        regret_T2_P2 = jouer_partie_T2(P2,en_combi,a  , en_action_T1, en_nombreStrategies_T2, P1, ma_combi, mon_action_T2, mon_action_T1, nombreStrategies_T2,flop, jeton_P2 - en_action_T1, jeton_P1 - mon_action_T1)[1] - en_recomp
+                        print("il regarde si il'avait joué au T2 : " + str(a))
+                        regret_T2_P2 = jouer_partie_T2_print(P2,en_combi,a  , en_action_T1, en_nombreStrategies_T2, P1, ma_combi, mon_action_T2, mon_action_T1, nombreStrategies_T2,flop, jeton_P2 - en_action_T1, jeton_P1 - mon_action_T1)[1] - en_recomp
                         en_nombre_regret_T2[(PP2, en_combi[0])][a] += regret_T2_P2
+                        le_reg_2[a].append(regret_T2_P2)
+                        print("son regret est de : " + str(regret_T2_P2))
                         print("il a fini")
             #on distribue le résultat
             jeton_P1 += recomp_P1
@@ -248,15 +253,20 @@ def entrainer_print(i) :
             print("mes jetons restants : " + str(jeton_P1))
             print("ses jetons restants : " + str(jeton_P2))
             print("évolution du regret : ")
-            print(nombre_regret_T1[PP1])
-            print(nombre_regret_T2[(PP1, ma_combi[0])])
+            print(en_nombre_regret_T1[PP2])
+            print(en_nombre_regret_T2[(PP2, en_combi[0])])
             print("la stratégie est : ")
-            print(prendre_strategie(nombre_regret_T1[PP1]))
-            print(prendre_strategie(nombre_regret_T2[(PP1, ma_combi[0])]))
+            print(prendre_strategie(en_nombre_regret_T1[PP2]))
+            print(prendre_strategie(en_nombre_regret_T2[(PP2, en_combi[0])]))
             print("le regret de ce tour :")
             print(le_reg_1)
             print(le_reg_2)
             j += 1
+        if jeton_P1 <= 0 :
+            L +=1
+        if jeton_P2 <= 0 :
+            W += 1
+    print(W, L)
 
 def entrainer_truque(i) :
     W = 0
@@ -270,7 +280,7 @@ def entrainer_truque(i) :
         j = 0
         while jeton_P1 > 0 and jeton_P2 > 0 :
             #mise en place du jeu
-            jeu = cree_jeu_truque(['K3','A1'])
+            jeu = cree_jeu_truque(['D3','J1'])
             P1 = jeu[1]
             PP1= conv_carte_str(P1)
             
@@ -379,7 +389,7 @@ def entrainer_truque(i) :
             jeton_P2 += recomp_P2
             if jeton_P1 <= 0 :
                 L += 1
-            elif jeton_P2 <= 0 :
+            if jeton_P2 <= 0 :
                 W += 1
             j += 1
     print(W,L)
@@ -388,6 +398,6 @@ def entrainer_truque(i) :
 # iteration = 1000
 # entrainer_print(iteration)
 # ecrire_strat_fichier(nombreStrategies_T1, nombreStrategies_T2, nombre_regret_T1, nombre_regret_T2, f"strat{iter}_.txt")
-entrainer_truque(1000)
+
 
 ####

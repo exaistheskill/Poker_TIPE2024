@@ -241,10 +241,8 @@ def jouer_partie_T1_print(j,ma_main_brut, ma_decision_T1, mon_nombre_strat, en_m
     en_action_T1 = en_decision_T1
     partie_continue = True
     if mon_action_T1 == 0 and j%2 == 0 :
-        print("pas ce soir moi")
         mon_action_T1 = 1
     if en_action_T1 == 0 and j%2 == 1:
-        print("hihi pas ce soir")
         en_action_T1 = 1
     if mon_action_T1 == 0 :
         partie_continue = False
@@ -430,18 +428,18 @@ def prendre_decision_jeu_T2(ma_main, ma_combi,mon_nombre_strat,mon_nombre_reg, e
         en_action_T2 = jeton_P2
     return (mon_action_T2, en_action_T2)
 
-def jouer_pour_regret_T1(mon_autre_coup, recomp_P1, ma_main_brut ,ma_combi, mon_nombre_strat_T1, mon_nombre_strat_T2, mon_nombre_reg_T1, mon_nombre_reg_T2, en_main_brut ,en_combi,en_action_T1, en_nombre_strat_T1, en_nombre_strat_T2 ,en_nombre_reg_T1,en_nombre_reg_T2, flop, mes_jeton, en_jeton) :
+def jouer_pour_regret_T1(mon_autre_coup, j, recomp_P1, ma_main_brut ,ma_combi, mon_nombre_strat_T1, mon_nombre_strat_T2, mon_nombre_reg_T1, mon_nombre_reg_T2, en_main_brut ,en_combi,en_action_T1, en_nombre_strat_T1, en_nombre_strat_T2 ,en_nombre_reg_T1,en_nombre_reg_T2, flop, mes_jeton, en_jeton) :
     a, P1, jeton_P1 = mon_autre_coup, ma_main_brut, mes_jeton
     P2, jeton_P2 = en_main_brut, en_jeton
-    regret_act1_P1, regret_act1_P2, is_fold_P1_rgtT1, is_fold_P2_rgtT1, partie_continue_rgtT1 = jouer_partie_T1(P1, a,mon_nombre_strat_T1, P2, en_action_T1,en_nombre_strat_T1,jeton_P1, jeton_P2)
-    
+    regret_act1_P1, regret_act1_P2, is_fold_P1_rgtT1, is_fold_P2_rgtT1, partie_continue_rgtT1 = jouer_partie_T1(j, P1, a,mon_nombre_strat_T1, P2, en_action_T1,en_nombre_strat_T1,jeton_P1, jeton_P2)
+    ma_recomp = recomp_P1
     jeton_rgt_P1 = jeton_P1 - regret_act1_P1
     jeton_rgt_P2 = jeton_P2 - regret_act1_P2
     if partie_continue_rgtT1 == True :
         
         regret_act2_P1, regret_act2_P2 = prendre_decision_jeu_T2(P1,ma_combi,mon_nombre_strat_T2, mon_nombre_reg_T2, P2,en_combi,en_nombre_strat_T2, en_nombre_reg_T2, jeton_rgt_P1, jeton_rgt_P2)
         mon_regret_T1 = jouer_partie_T2(P1, ma_combi,regret_act2_P1, regret_act1_P1, mon_nombre_strat_T2, P2,en_combi, regret_act2_P2, regret_act1_P2, en_nombre_strat_T2, flop, jeton_rgt_P1, jeton_rgt_P2)[0] - recomp_P1
-        ma_recomp = recomp_P1
+        
     else :
         if is_fold_P1_rgtT1 == True :
             
