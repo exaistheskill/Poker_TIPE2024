@@ -104,7 +104,9 @@ def equilibrage_main_T1(mon_action, mon_nombre_strategie, en_action, en_nombrest
         #que je compte comme étant un fold(être têtu => fold)
         choix2 = 0
         a = min(en_action, mes_jetons)
-        
+        if a == 0 :
+            #il y a eu un all in
+            return (a, a, is_fold_P1, is_fold_P2, partie_continue)
         for action in range(a, len(betPossible)) :
             choix2 += prendre_strategie_moyenne(mon_nombre_strategie[ma_main])[action]
         #0 -> fold, 1 -> call
@@ -125,7 +127,9 @@ def equilibrage_main_T1(mon_action, mon_nombre_strategie, en_action, en_nombrest
         choix1 = prendre_strategie_moyenne(en_nombrestrategie[en_main])[en_action]
         choix2 = 0
         a = min(mon_action, en_jetons)
-        
+        if a == 0 :
+            #il y a eu un all in
+            return (a, a, is_fold_P1, is_fold_P2, partie_continue)
         for action in range(a, len(betPossible)) :
             choix2 += prendre_strategie_moyenne(en_nombrestrategie[en_main])[action]
         choix_call = chv([0 , 1], p = [choix1/(choix1 + choix2), choix2/(choix1 + choix2)])
@@ -150,6 +154,9 @@ def equilibrage_main_T2_print(mon_action,mon_nombre_strategie, en_action,en_nomb
         choix1 = prendre_strategie_moyenne(mon_nombre_strategie[(ma_main, ma_combi[0])])[mon_action]
         choix2 = 0
         a = min(en_action, mes_jetons)
+        if a == 0 :
+            print("il y a eu un all in")
+            return (a, a, is_fold_P1, is_fold_P2, partie_continue)
         print(f"je dois raise {a} ou fold") 
         for action in range(a, len(betPossible)) :
             choix2 = prendre_strategie_moyenne(mon_nombre_strategie[(ma_main, ma_combi[0])])[action]
@@ -167,6 +174,9 @@ def equilibrage_main_T2_print(mon_action,mon_nombre_strategie, en_action,en_nomb
         choix1 = prendre_strategie_moyenne(en_nombrestrategie[(en_main, en_combi[0])])[en_action]
         choix2 = 0
         a = min(mon_action, en_jetons)
+        if a == 0 :
+            print("il y a eu un all in")
+            return (a, a, is_fold_P1, is_fold_P2, partie_continue)
         print(f"il doit raise {a} ou fold") 
         for action in range(a, len(betPossible)) :
             choix2 += prendre_strategie_moyenne(en_nombrestrategie[(en_main, en_combi[0])])[action]
