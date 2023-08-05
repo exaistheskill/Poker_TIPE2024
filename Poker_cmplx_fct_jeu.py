@@ -2,9 +2,94 @@ import numpy as np
 from random import choice
 from numpy.random import choice as chv
 from poker_variables import *
-#Fonction renvoyant un couple ("combinaison", "hauteur de la combinaison")
-#Exemple : ("pair", 3) veut dire qu'il y a une pair de Q (car le poids de Q est 3)
+#Fonction renvoyant un couple ("combinaison", "hauteur de la combinaison","est elle en main ou pas")
+#Exemple : ("pair", 3,"true") veut dire qu'il y a une pair de Q (car le poids de Q est 3), de plus elle est en main
 def combinaison_jeu(main, flop) :
+    jeu = main + flop
+    ##on crée une liste de couple ("carte", occurences de la carte)
+    Carte = [[j, 0,0] for j in carte_possible]
+    ##on compte le nombre de carte qu'on a pour chaque symbole
+    for i in range(len(jeu)) :
+        for j in range(len(Carte)) :
+            if Deck_symb[jeu[i]] == Carte[j][0] and i<= 2:
+                Carte[j][1] += 1
+            if Deck_symb[jeu[i]] == Carte[j][0] and i > 2:
+                Carte[j][2] += 1
+            
+    ##quinte flush et carre :
+    x = 0
+    couleur = jeu[0][1]
+    for i in range(5) :
+        if (Carte[i][1] == 1 or Carte[i][2] == 1) and  jeu[i][1] == couleur :
+            x += 1
+        else :
+            break
+    if x == 5 :
+        return ("quinte_flush", 1,True)
+    ##carre et full
+    x = 0
+    y = 0
+    for i in Carte :
+        if i[1] + i[2] == 4 :
+            return ("carre", 1,True)
+    is_in_hand = False
+    for i in Carte :
+        if i[1] + i[2] == 3  :
+            y += poids_carte[i[0]]
+            is_in_hand = (i[1] != 0)
+        if i[1] + i[2] == 2 :
+            x += poids_carte[i[0]]
+            is_in_hand = (i[1] != 0) 
+        if x != 0 and y != 0:
+            return ("full", y,True)
+    if y != 0 :
+        return ("brelan", y, is_in_hand)
+    ##Flush
+    x = 0
+    ##a est la hauteur de notre flush
+    a = 0
+    for i in range(5) :
+        if jeu[i][1] == couleur :
+            x += 1
+        else : 
+            break
+        if (Carte[i][1] != 0 or Carte[i][2] != 0 ) and poids_carte[Carte[i][0]] > a :
+            a = poids_carte[Carte[i][0]]
+    if x == 5 :
+        return ("flush", a,True)
+    ##suite
+    x = 0
+    for i in Carte :
+        if (i[1] == 1 or i[2] == 1) :
+            x += 1
+        else :
+            break
+    if x == 5 :
+        return ("suite", 1,True)
+    ##double pair et pair
+    x = 0
+    a = 0
+    b = 0
+    is_in_hand = False
+    for i in range(len(Carte)) :
+        if (Carte[i][1] + Carte[i][2] == 2) :
+            x += 1
+            if a == 0 :
+                a = poids_carte[Carte[i][0]]
+            if a != 0 :
+                b = poids_carte[Carte[i][0]]
+            is_in_hand = (Carte[i][1] == 2)
+    if x == 2 :
+        return ("double_pair", max(a,b),True)
+    if x == 1 :
+        return("pair", a, is_in_hand)
+    #hauteur
+    a = 0
+    for i in Carte :
+        if i[1] == 1 :
+            a = max(a, poids_carte[i[0]])
+    return("hauteur", a, True)
+def combinaison_jeu_ancien(main, flop) :
     jeu = main + flop
     ##on crée une liste de couple ("carte", occurences de la carte)
     Carte = [[j, 0] for j in carte_possible]
@@ -70,7 +155,7 @@ def combinaison_jeu(main, flop) :
             a = max(a, poids_carte[Carte[i][0]])
             b += poids_carte[Carte[i][0]]
     if x == 2 :
-        return ("double_pair", a*50 + b)
+        return ("double_pair", max(a,b))
     if x == 1 :
         return("pair", a)
     #hauteur
@@ -212,7 +297,6 @@ def prendre_recompense(mon_action, ma_main, en_action, en_main, flop) :
                return -mon_action
            else :
                return 0
-
 
 
 
