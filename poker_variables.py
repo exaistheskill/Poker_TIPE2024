@@ -1,6 +1,6 @@
 import numpy as np
 #Variables
-regle = {"bet-fold" : 1, "fold-bet" : -1, "fold-fold" : 0, "jeton_base" : 10}
+regle = {"bet-fold" : 1, "fold-bet" : -1, "fold-fold" : 0, "jeton_base" : 30}
 betPossible =  [i for i in range(5)]
 nombreActions = len(betPossible)
 nb_Tour = 2

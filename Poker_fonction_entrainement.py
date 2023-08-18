@@ -54,6 +54,10 @@ def equilibrage_main_T1_print(j,mon_action, mon_nombre_strategie, en_action, en_
         
         #2eme cas : j'ai misé plus que mon adversaire
         if mon_action > en_action :
+            if en_action == en_jetons :
+                print("il all in")
+                mon_action = en_jetons
+                return (mon_action,en_action,is_fold_P1,is_fold_P2,partie_continue)
             print("il fold")
             #l'adversaire a donc fold
             is_fold_P2 = True
@@ -93,6 +97,10 @@ def equilibrage_main_T1_print(j,mon_action, mon_nombre_strategie, en_action, en_
         return (mon_action, en_action, is_fold_P1, is_fold_P2, partie_continue)
     if j%2 == 1 :
         if mon_action < en_action :
+            if mon_action == mes_jetons :
+                en_action = mes_jetons
+                print("j'ai all in")
+                return (mon_action, en_action, is_fold_P1, is_fold_P2, partie_continue)
             # j'ai donc fold
             print("je fold")
             is_fold_P1 = True
@@ -142,7 +150,9 @@ def equilibrage_main_T1(j,mon_action, mon_nombre_strategie, en_action, en_nombre
         
         #2eme cas : j'ai misé plus que mon adversaire
         if mon_action > en_action :
-            
+            if en_action == en_jetons :
+                mon_action = en_jetons
+                return (mon_action, en_action, is_fold_P1, is_fold_P2, partie_continue)
             #l'adversaire a donc fold
             is_fold_P2 = True
             partie_continue = False
@@ -179,6 +189,9 @@ def equilibrage_main_T1(j,mon_action, mon_nombre_strategie, en_action, en_nombre
         return (mon_action, en_action, is_fold_P1, is_fold_P2, partie_continue)
     if j%2 == 1 :
         if mon_action < en_action :
+            if mon_action == mes_jetons :
+                en_action = mes_jetons
+                return (mon_action, en_action, is_fold_P1, is_fold_P2, partie_continue)
             # j'ai donc fold
             
             is_fold_P1 = True
@@ -222,6 +235,9 @@ def equilibrage_main_T2_print(j,mon_action,mon_nombre_strategie, en_action,en_no
     if j%2 == 0 :
         
         if mon_action < en_action :
+            if mon_action == mes_jetons :
+                print("j'ai all in")
+                return (mon_action,en_action,is_fold_P1,is_fold_P2,partie_continue)
             #donc j'ai fold
             print("j'ai fold")
             is_fold_P1 = True
@@ -254,6 +270,10 @@ def equilibrage_main_T2_print(j,mon_action,mon_nombre_strategie, en_action,en_no
         return (mon_action, en_action, is_fold_P1, is_fold_P2, partie_continue)
     if j%2 == 1 :
         if mon_action > en_action :
+            if en_action == en_jetons :
+                print("il all in")
+                mon_action = en_jetons
+                return (mon_action,en_action,is_fold_P1,is_fold_P2,partie_continue)
             #il a donc fold
             print('il fold')
             is_fold_P2, partie_continue = True, False
@@ -290,6 +310,8 @@ def equilibrage_main_T2(j,mon_action,mon_nombre_strategie, en_action,en_nombrest
     if j%2 == 0 :
         
         if mon_action < en_action :
+            if mon_action == mes_jetons :
+                return(mon_action, mon_action,is_fold_P1,is_fold_P2,partie_continue)
             #donc j'ai fold
             
             is_fold_P1 = True
@@ -322,6 +344,8 @@ def equilibrage_main_T2(j,mon_action,mon_nombre_strategie, en_action,en_nombrest
         return (mon_action, en_action, is_fold_P1, is_fold_P2, partie_continue)
     if j%2 == 1 :
         if mon_action > en_action :
+            if en_action == en_jetons :
+                return(en_action,en_action,is_fold_P1,is_fold_P2,partie_continue)
             #il a donc fold
             
             is_fold_P2, partie_continue = False, False
